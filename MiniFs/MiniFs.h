@@ -19,6 +19,8 @@ Environment:
 #include <fltKernel.h>
 #include <dontuse.h>
 
+#include "register.h"
+
 #pragma prefast(disable:__WARNING_ENCODE_MEMBER_FUNCTION_POINTER, "Not valid for kernel mode drivers")
 
 
@@ -73,14 +75,14 @@ MiniFsInstanceQueryTeardown(
 
 FLT_PREOP_CALLBACK_STATUS
 MiniFsPreOperation(
-    _Inout_ PFLT_CALLBACK_DATA Data,
+    _Inout_ PFLT_CALLBACK_DATA data,
     _In_ PCFLT_RELATED_OBJECTS flt_objects,
     _Flt_CompletionContext_Outptr_ PVOID* completion_context
 );
 
 FLT_POSTOP_CALLBACK_STATUS
 MiniFsPostOperation(
-    _Inout_ PFLT_CALLBACK_DATA Data,
+    _Inout_ PFLT_CALLBACK_DATA data,
     _In_ PCFLT_RELATED_OBJECTS flt_objects,
     _In_opt_ PVOID completion_context,
     _In_ FLT_POST_OPERATION_FLAGS flags

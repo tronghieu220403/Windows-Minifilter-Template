@@ -27,6 +27,15 @@
     <ClCompile Include="MiniFs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="register.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="project_name.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\memory\memory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MiniFs.rc">
@@ -35,6 +44,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MiniFs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="register.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\memory\memory.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\memory\sharedptr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\string\string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\vector\vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

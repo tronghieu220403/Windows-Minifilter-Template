@@ -244,7 +244,7 @@ Return Value:
 *************************************************************************/
 FLT_PREOP_CALLBACK_STATUS
 MiniFsPreOperation (
-    _Inout_ PFLT_CALLBACK_DATA Data,
+    _Inout_ PFLT_CALLBACK_DATA data,
     _In_ PCFLT_RELATED_OBJECTS flt_objects,
     _Flt_CompletionContext_Outptr_ PVOID *completion_context
     )
@@ -258,7 +258,7 @@ Routine Description:
 
 Arguments:
 
-    Data - Pointer to the filter callbackData that is passed to us.
+    data - Pointer to the filter callbackData that is passed to us.
 
     flt_objects - Pointer to the FLT_RELATED_OBJECTS data structure containing
         opaque handles to this filter, instance, its associated volume and
@@ -273,17 +273,27 @@ Return Value:
 
 --*/
 {
-    NTSTATUS status;
 
     UNREFERENCED_PARAMETER( flt_objects );
     UNREFERENCED_PARAMETER( completion_context );
+
+    for (int i = 0; i < kPreFuncVector.Size(); i++)
+    {
+        if (data->Iopb->MajorFunction == kPreFuncVector[i].irp_mj_function_code && 
+            kPreFuncVector[i].func != nullptr)
+        {
+            FLT_PREOP_CALLBACK_STATUS status = kPreFuncVector[i].func(data, flt_objects, completion_context);
+
+            // TODO: handle post operation.
+        }
+    }
 
     return FLT_PREOP_SUCCESS_WITH_CALLBACK;
 }
 
 FLT_POSTOP_CALLBACK_STATUS
 MiniFsPostOperation (
-    _Inout_ PFLT_CALLBACK_DATA Data,
+    _Inout_ PFLT_CALLBACK_DATA data,
     _In_ PCFLT_RELATED_OBJECTS flt_objects,
     _In_opt_ PVOID completion_context,
     _In_ FLT_POST_OPERATION_FLAGS flags
@@ -299,7 +309,7 @@ Routine Description:
 
 Arguments:
 
-    Data - Pointer to the filter callbackData that is passed to us.
+    data - Pointer to the filter callbackData that is passed to us.
 
     flt_objects - Pointer to the FLT_RELATED_OBJECTS data structure containing
         opaque handles to this filter, instance, its associated volume and
@@ -315,7 +325,7 @@ Return Value:
 
 --*/
 {
-    UNREFERENCED_PARAMETER( Data );
+    UNREFERENCED_PARAMETER( data );
     UNREFERENCED_PARAMETER( flt_objects );
     UNREFERENCED_PARAMETER( completion_context );
     UNREFERENCED_PARAMETER( flags );
