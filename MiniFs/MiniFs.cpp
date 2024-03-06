@@ -2,7 +2,7 @@
 
 Module Name:
 
-    MiniFs.c
+    MiniFs.cpp
 
 Abstract:
 
@@ -21,18 +21,11 @@ Environment:
 
 
 PFLT_FILTER kFilterHandle;
-ULONG_PTR OperationStatusCtx = 1;
 
 #define PTDBG_TRACE_ROUTINES            0x00000001
 #define PTDBG_TRACE_OPERATION_STATUS    0x00000002
 
-ULONG gTraceFlags = 0;
-
-
-#define PT_DBG_PRINT( _dbgLevel, _string )          \
-    (FlagOn(gTraceFlags,(_dbgLevel)) ?              \
-        DbgPrint _string :                          \
-        ((int)0))
+ULONG gTraceflags = 0;
 
 /*************************************************************************
     Prototypes
@@ -43,67 +36,54 @@ EXTERN_C_START
 DRIVER_INITIALIZE DriverEntry;
 NTSTATUS
 DriverEntry (
-    _In_ PDRIVER_OBJECT DriverObject,
-    _In_ PUNICODE_STRING RegistryPath
+    _In_ PDRIVER_OBJECT driver_object,
+    _In_ PUNICODE_STRING registry_path
     );
 
 NTSTATUS
 MiniFsInstanceSetup (
-    _In_ PCFLT_RELATED_OBJECTS FltObjects,
-    _In_ FLT_INSTANCE_SETUP_FLAGS Flags,
-    _In_ DEVICE_TYPE VolumeDeviceType,
-    _In_ FLT_FILESYSTEM_TYPE VolumeFilesystemType
+    _In_ PCFLT_RELATED_OBJECTS flt_objects,
+    _In_ FLT_INSTANCE_SETUP_FLAGS flags,
+    _In_ DEVICE_TYPE volume_device_type,
+    _In_ FLT_FILESYSTEM_TYPE volume_filesystem_type
     );
 
 VOID
 MiniFsInstanceTeardownStart (
-    _In_ PCFLT_RELATED_OBJECTS FltObjects,
-    _In_ FLT_INSTANCE_TEARDOWN_FLAGS Flags
+    _In_ PCFLT_RELATED_OBJECTS flt_objects,
+    _In_ FLT_INSTANCE_TEARDOWN_FLAGS flags
     );
 
 VOID
 MiniFsInstanceTeardownComplete (
-    _In_ PCFLT_RELATED_OBJECTS FltObjects,
-    _In_ FLT_INSTANCE_TEARDOWN_FLAGS Flags
+    _In_ PCFLT_RELATED_OBJECTS flt_objects,
+    _In_ FLT_INSTANCE_TEARDOWN_FLAGS flags
     );
 
 NTSTATUS
 MiniFsUnload (
-    _In_ FLT_FILTER_UNLOAD_FLAGS Flags
+    _In_ FLT_FILTER_UNLOAD_FLAGS flags
     );
 
 NTSTATUS
 MiniFsInstanceQueryTeardown (
-    _In_ PCFLT_RELATED_OBJECTS FltObjects,
-    _In_ FLT_INSTANCE_QUERY_TEARDOWN_FLAGS Flags
+    _In_ PCFLT_RELATED_OBJECTS flt_objects,
+    _In_ FLT_INSTANCE_QUERY_TEARDOWN_FLAGS flags
     );
 
 FLT_PREOP_CALLBACK_STATUS
 MiniFsPreOperation (
     _Inout_ PFLT_CALLBACK_DATA Data,
-    _In_ PCFLT_RELATED_OBJECTS FltObjects,
-    _Flt_CompletionContext_Outptr_ PVOID *CompletionContext
-    );
-
-VOID
-MiniFsOperationStatusCallback (
-    _In_ PCFLT_RELATED_OBJECTS FltObjects,
-    _In_ PFLT_IO_PARAMETER_BLOCK ParameterSnapshot,
-    _In_ NTSTATUS OperationStatus,
-    _In_ PVOID RequesterContext
+    _In_ PCFLT_RELATED_OBJECTS flt_objects,
+    _Flt_CompletionContext_Outptr_ PVOID *completion_context
     );
 
 FLT_POSTOP_CALLBACK_STATUS
 MiniFsPostOperation (
     _Inout_ PFLT_CALLBACK_DATA Data,
-    _In_ PCFLT_RELATED_OBJECTS FltObjects,
-    _In_opt_ PVOID CompletionContext,
-    _In_ FLT_POST_OPERATION_FLAGS Flags
-    );
-
-BOOLEAN
-MiniFsDoRequestOperationStatus(
-    _In_ PFLT_CALLBACK_DATA Data
+    _In_ PCFLT_RELATED_OBJECTS flt_objects,
+    _In_opt_ PVOID completion_context,
+    _In_ FLT_POST_OPERATION_FLAGS flags
     );
 
 EXTERN_C_END
@@ -125,7 +105,7 @@ EXTERN_C_END
 //  operation registration
 //
 
-CONST FLT_OPERATION_REGISTRATION Callbacks[] = {
+CONST FLT_OPERATION_REGISTRATION kCallbacks[] = {
 
     { IRP_MJ_CREATE,
       0,
@@ -333,10 +313,10 @@ CONST FLT_REGISTRATION FilterRegistration = {
 
     sizeof( FLT_REGISTRATION ),         //  Size
     FLT_REGISTRATION_VERSION,           //  Version
-    0,                                  //  Flags
+    0,                                  //  flags
 
     NULL,                               //  Context
-    Callbacks,                          //  Operation callbacks
+    kCallbacks,                          //  Operation callbacks
 
     (PFLT_FILTER_UNLOAD_CALLBACK)MiniFsUnload,                                  //  MiniFilterUnload
 
@@ -355,10 +335,10 @@ CONST FLT_REGISTRATION FilterRegistration = {
 
 NTSTATUS
 MiniFsInstanceSetup (
-    _In_ PCFLT_RELATED_OBJECTS FltObjects,
-    _In_ FLT_INSTANCE_SETUP_FLAGS Flags,
-    _In_ DEVICE_TYPE VolumeDeviceType,
-    _In_ FLT_FILESYSTEM_TYPE VolumeFilesystemType
+    _In_ PCFLT_RELATED_OBJECTS flt_objects,
+    _In_ FLT_INSTANCE_SETUP_FLAGS flags,
+    _In_ DEVICE_TYPE volume_device_type,
+    _In_ FLT_FILESYSTEM_TYPE volume_filesystem_type
     )
 /*++
 
@@ -372,10 +352,10 @@ Routine Description:
 
 Arguments:
 
-    FltObjects - Pointer to the FLT_RELATED_OBJECTS data structure containing
+    flt_objects - Pointer to the FLT_RELATED_OBJECTS data structure containing
         opaque handles to this filter, instance and its associated volume.
 
-    Flags - Flags describing the reason for this attach request.
+    flags - flags describing the reason for this attach request.
 
 Return Value:
 
@@ -384,15 +364,12 @@ Return Value:
 
 --*/
 {
-    UNREFERENCED_PARAMETER( FltObjects );
-    UNREFERENCED_PARAMETER( Flags );
-    UNREFERENCED_PARAMETER( VolumeDeviceType );
-    UNREFERENCED_PARAMETER( VolumeFilesystemType );
+    UNREFERENCED_PARAMETER( flt_objects );
+    UNREFERENCED_PARAMETER( flags );
+    UNREFERENCED_PARAMETER( volume_device_type );
+    UNREFERENCED_PARAMETER( volume_filesystem_type );
 
     PAGED_CODE();
-
-    PT_DBG_PRINT( PTDBG_TRACE_ROUTINES,
-                  ("MiniFs!MiniFsInstanceSetup: Entered\n") );
 
     return STATUS_SUCCESS;
 }
@@ -400,8 +377,8 @@ Return Value:
 
 NTSTATUS
 MiniFsInstanceQueryTeardown (
-    _In_ PCFLT_RELATED_OBJECTS FltObjects,
-    _In_ FLT_INSTANCE_QUERY_TEARDOWN_FLAGS Flags
+    _In_ PCFLT_RELATED_OBJECTS flt_objects,
+    _In_ FLT_INSTANCE_QUERY_TEARDOWN_FLAGS flags
     )
 /*++
 
@@ -417,10 +394,10 @@ Routine Description:
 
 Arguments:
 
-    FltObjects - Pointer to the FLT_RELATED_OBJECTS data structure containing
+    flt_objects - Pointer to the FLT_RELATED_OBJECTS data structure containing
         opaque handles to this filter, instance and its associated volume.
 
-    Flags - Indicating where this detach request came from.
+    flags - Indicating where this detach request came from.
 
 Return Value:
 
@@ -428,8 +405,8 @@ Return Value:
 
 --*/
 {
-    UNREFERENCED_PARAMETER( FltObjects );
-    UNREFERENCED_PARAMETER( Flags );
+    UNREFERENCED_PARAMETER( flt_objects );
+    UNREFERENCED_PARAMETER( flags );
 
     PAGED_CODE();
 
@@ -439,8 +416,8 @@ Return Value:
 
 VOID
 MiniFsInstanceTeardownStart (
-    _In_ PCFLT_RELATED_OBJECTS FltObjects,
-    _In_ FLT_INSTANCE_TEARDOWN_FLAGS Flags
+    _In_ PCFLT_RELATED_OBJECTS flt_objects,
+    _In_ FLT_INSTANCE_TEARDOWN_FLAGS flags
     )
 /*++
 
@@ -450,10 +427,10 @@ Routine Description:
 
 Arguments:
 
-    FltObjects - Pointer to the FLT_RELATED_OBJECTS data structure containing
+    flt_objects - Pointer to the FLT_RELATED_OBJECTS data structure containing
         opaque handles to this filter, instance and its associated volume.
 
-    Flags - Reason why this instance is being deleted.
+    flags - Reason why this instance is being deleted.
 
 Return Value:
 
@@ -461,8 +438,8 @@ Return Value:
 
 --*/
 {
-    UNREFERENCED_PARAMETER( FltObjects );
-    UNREFERENCED_PARAMETER( Flags );
+    UNREFERENCED_PARAMETER( flt_objects );
+    UNREFERENCED_PARAMETER( flags );
 
     PAGED_CODE();
 
@@ -471,8 +448,8 @@ Return Value:
 
 VOID
 MiniFsInstanceTeardownComplete (
-    _In_ PCFLT_RELATED_OBJECTS FltObjects,
-    _In_ FLT_INSTANCE_TEARDOWN_FLAGS Flags
+    _In_ PCFLT_RELATED_OBJECTS flt_objects,
+    _In_ FLT_INSTANCE_TEARDOWN_FLAGS flags
     )
 /*++
 
@@ -482,10 +459,10 @@ Routine Description:
 
 Arguments:
 
-    FltObjects - Pointer to the FLT_RELATED_OBJECTS data structure containing
+    flt_objects - Pointer to the FLT_RELATED_OBJECTS data structure containing
         opaque handles to this filter, instance and its associated volume.
 
-    Flags - Reason why this instance is being deleted.
+    flags - Reason why this instance is being deleted.
 
 Return Value:
 
@@ -493,8 +470,8 @@ Return Value:
 
 --*/
 {
-    UNREFERENCED_PARAMETER( FltObjects );
-    UNREFERENCED_PARAMETER( Flags );
+    UNREFERENCED_PARAMETER( flt_objects );
+    UNREFERENCED_PARAMETER( flags );
 
     PAGED_CODE();
 
@@ -507,8 +484,8 @@ Return Value:
 
 NTSTATUS
 DriverEntry (
-    _In_ PDRIVER_OBJECT DriverObject,
-    _In_ PUNICODE_STRING RegistryPath
+    _In_ PDRIVER_OBJECT driver_object,
+    _In_ PUNICODE_STRING registry_path
     )
 /*++
 
@@ -519,10 +496,10 @@ Routine Description:
 
 Arguments:
 
-    DriverObject - Pointer to driver object created by the system to
+    driver_object - Pointer to driver object created by the system to
         represent this driver.
 
-    RegistryPath - Unicode string identifying where the parameters for this
+    registry_path - Unicode string identifying where the parameters for this
         driver are located in the registry.
 
 Return Value:
@@ -533,16 +510,13 @@ Return Value:
 {
     NTSTATUS status;
 
-    UNREFERENCED_PARAMETER( RegistryPath );
-
-    PT_DBG_PRINT( PTDBG_TRACE_ROUTINES,
-                  ("MiniFs!DriverEntry: Entered\n") );
+    UNREFERENCED_PARAMETER( registry_path );
 
     //
     //  Register with FltMgr to tell it our callback routines
     //
 
-    status = FltRegisterFilter( DriverObject,
+    status = FltRegisterFilter( driver_object,
                                 &FilterRegistration,
                                 &kFilterHandle );
 
@@ -567,7 +541,7 @@ Return Value:
 
 NTSTATUS
 MiniFsUnload (
-    _In_ FLT_FILTER_UNLOAD_FLAGS Flags
+    _In_ FLT_FILTER_UNLOAD_FLAGS flags
     )
 /*++
 
@@ -575,12 +549,12 @@ Routine Description:
 
     This is the unload routine for this miniFilter driver. This is called
     when the minifilter is about to be unloaded. We can fail this unload
-    request if this is not a mandatory unload indicated by the Flags
+    request if this is not a mandatory unload indicated by the flags
     parameter.
 
 Arguments:
 
-    Flags - Indicating if this is a mandatory unload.
+    flags - Indicating if this is a mandatory unload.
 
 Return Value:
 
@@ -588,12 +562,9 @@ Return Value:
 
 --*/
 {
-    UNREFERENCED_PARAMETER( Flags );
+    UNREFERENCED_PARAMETER( flags );
 
     PAGED_CODE();
-
-    PT_DBG_PRINT( PTDBG_TRACE_ROUTINES,
-                  ("MiniFs!MiniFsUnload: Entered\n") );
 
     FltUnregisterFilter( kFilterHandle );
 
@@ -607,8 +578,8 @@ Return Value:
 FLT_PREOP_CALLBACK_STATUS
 MiniFsPreOperation (
     _Inout_ PFLT_CALLBACK_DATA Data,
-    _In_ PCFLT_RELATED_OBJECTS FltObjects,
-    _Flt_CompletionContext_Outptr_ PVOID *CompletionContext
+    _In_ PCFLT_RELATED_OBJECTS flt_objects,
+    _Flt_CompletionContext_Outptr_ PVOID *completion_context
     )
 /*++
 
@@ -622,11 +593,11 @@ Arguments:
 
     Data - Pointer to the filter callbackData that is passed to us.
 
-    FltObjects - Pointer to the FLT_RELATED_OBJECTS data structure containing
+    flt_objects - Pointer to the FLT_RELATED_OBJECTS data structure containing
         opaque handles to this filter, instance, its associated volume and
         file object.
 
-    CompletionContext - The context for the completion routine for this
+    completion_context - The context for the completion routine for this
         operation.
 
 Return Value:
@@ -637,8 +608,8 @@ Return Value:
 {
     NTSTATUS status;
 
-    UNREFERENCED_PARAMETER( FltObjects );
-    UNREFERENCED_PARAMETER( CompletionContext );
+    UNREFERENCED_PARAMETER( flt_objects );
+    UNREFERENCED_PARAMETER( completion_context );
 
     return FLT_PREOP_SUCCESS_WITH_CALLBACK;
 }
@@ -646,9 +617,9 @@ Return Value:
 FLT_POSTOP_CALLBACK_STATUS
 MiniFsPostOperation (
     _Inout_ PFLT_CALLBACK_DATA Data,
-    _In_ PCFLT_RELATED_OBJECTS FltObjects,
-    _In_opt_ PVOID CompletionContext,
-    _In_ FLT_POST_OPERATION_FLAGS Flags
+    _In_ PCFLT_RELATED_OBJECTS flt_objects,
+    _In_opt_ PVOID completion_context,
+    _In_ FLT_POST_OPERATION_FLAGS flags
     )
 /*++
 
@@ -663,13 +634,13 @@ Arguments:
 
     Data - Pointer to the filter callbackData that is passed to us.
 
-    FltObjects - Pointer to the FLT_RELATED_OBJECTS data structure containing
+    flt_objects - Pointer to the FLT_RELATED_OBJECTS data structure containing
         opaque handles to this filter, instance, its associated volume and
         file object.
 
-    CompletionContext - The completion context set in the pre-operation routine.
+    completion_context - The completion context set in the pre-operation routine.
 
-    Flags - Denotes whether the completion is successful or is being drained.
+    flags - Denotes whether the completion is successful or is being drained.
 
 Return Value:
 
@@ -678,62 +649,10 @@ Return Value:
 --*/
 {
     UNREFERENCED_PARAMETER( Data );
-    UNREFERENCED_PARAMETER( FltObjects );
-    UNREFERENCED_PARAMETER( CompletionContext );
-    UNREFERENCED_PARAMETER( Flags );
-
-    PT_DBG_PRINT( PTDBG_TRACE_ROUTINES,
-                  ("MiniFs!(PFLT_POST_OPERATION_CALLBACK)&MiniFsPostOperation: Entered\n") );
+    UNREFERENCED_PARAMETER( flt_objects );
+    UNREFERENCED_PARAMETER( completion_context );
+    UNREFERENCED_PARAMETER( flags );
 
     return FLT_POSTOP_FINISHED_PROCESSING;
 }
 
-BOOLEAN
-MiniFsDoRequestOperationStatus(
-    _In_ PFLT_CALLBACK_DATA Data
-    )
-/*++
-
-Routine Description:
-
-    This identifies those operations we want the operation status for.  These
-    are typically operations that return STATUS_PENDING as a normal completion
-    status.
-
-Arguments:
-
-Return Value:
-
-    TRUE - If we want the operation status
-    FALSE - If we don't
-
---*/
-{
-    PFLT_IO_PARAMETER_BLOCK iopb = Data->Iopb;
-
-    //
-    //  return boolean state based on which operations we are interested in
-    //
-
-    return (BOOLEAN)
-
-            //
-            //  Check for oplock operations
-            //
-
-             (((iopb->MajorFunction == IRP_MJ_FILE_SYSTEM_CONTROL) &&
-               ((iopb->Parameters.FileSystemControl.Common.FsControlCode == FSCTL_REQUEST_FILTER_OPLOCK)  ||
-                (iopb->Parameters.FileSystemControl.Common.FsControlCode == FSCTL_REQUEST_BATCH_OPLOCK)   ||
-                (iopb->Parameters.FileSystemControl.Common.FsControlCode == FSCTL_REQUEST_OPLOCK_LEVEL_1) ||
-                (iopb->Parameters.FileSystemControl.Common.FsControlCode == FSCTL_REQUEST_OPLOCK_LEVEL_2)))
-
-              ||
-
-              //
-              //    Check for directy change notification
-              //
-
-              ((iopb->MajorFunction == IRP_MJ_DIRECTORY_CONTROL) &&
-               (iopb->MinorFunction == IRP_MN_NOTIFY_CHANGE_DIRECTORY))
-             );
-}
