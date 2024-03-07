@@ -241,6 +241,7 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="debug.h" />
     <ClInclude Include="MiniFs.h" />
     <ClInclude Include="register.h" />
     <ClInclude Include="std\lib\memory\memory.h" />

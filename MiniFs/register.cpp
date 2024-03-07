@@ -11,6 +11,7 @@ void DriverRegister(
 	_In_ PUNICODE_STRING registry_path
 )
 {
+	DebugMessage("DriverRegister");
 	kPreFuncVector = new Vector<IrpMjPreFunction>();
 	kPostFuncVector = new Vector<IrpMjPostFunction>();
 	kDriverFuncVector = new Vector<void*>();
@@ -18,11 +19,13 @@ void DriverRegister(
 
 void MiniFilterRegister()
 {
-
+	DebugMessage("MiniFilterRegister");
 }
 
 Context* AllocCompletionContext()
 {
+	DebugMessage("AllocCompletionContext");
+
 	Context* context = new Context();
 	context->status = new Vector<FLT_PREOP_CALLBACK_STATUS>(kPreFuncVector->Size());
 
@@ -32,6 +35,7 @@ Context* AllocCompletionContext()
 
 void DeallocCompletionContext(Context *context)
 {
+	DebugMessage("DeallocCompletionContext");
 
 	delete context->status;
 

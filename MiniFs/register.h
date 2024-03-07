@@ -4,6 +4,7 @@
 #include <fltKernel.h>
 
 #include "std/lib/vector/vector.h"
+#include "debug.h"
 
 struct IrpMjPreFunction
 {
