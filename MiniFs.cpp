@@ -181,6 +181,8 @@ Return Value:
 
     DriverRegister(driver_object, registry_path);
 
+    driver_object->DriverUnload = (PDRIVER_UNLOAD)DriverUnload;
+
     MiniFilterRegister();
 
     //
@@ -208,6 +210,15 @@ Return Value:
     }
 
     return status;
+}
+
+NTSTATUS 
+DriverUnload(
+    PDRIVER_OBJECT driver_object
+)
+{
+    DriverUnloadRegistered(driver_object);
+    return STATUS_SUCCESS;
 }
 
 NTSTATUS
@@ -238,6 +249,8 @@ Return Value:
     PAGED_CODE();
 
     FltUnregisterFilter( kFilterHandle );
+
+    DebugMessage("FilterUnloadRegistered");
 
     return STATUS_SUCCESS;
 }
@@ -283,15 +296,15 @@ Return Value:
 
     
     Context* p = nullptr;
-    if (completion_context == nullptr)
+    if ((*completion_context) == nullptr)
     {
         p = AllocCompletionContext();
-        completion_context = (PVOID* )AllocCompletionContext();
+        (*completion_context) = (PVOID* )AllocCompletionContext();
         p->status->Resize(kPreFuncVector->Size());
     }
     else
     {
-        p = (Context*)completion_context;
+        p = (Context*)(*completion_context);
     }
 
     if (p == nullptr)
@@ -375,7 +388,7 @@ Return Value:
             }
         }
     }
-    
+    DeallocCompletionContext(p);
     return FLT_POSTOP_FINISHED_PROCESSING;
 }
 

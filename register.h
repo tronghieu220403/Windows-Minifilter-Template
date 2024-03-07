@@ -37,6 +37,8 @@ void DriverRegister(
 
 void MiniFilterRegister();
 
+void DriverUnloadRegistered(PDRIVER_OBJECT driver_object);
+
 Context* AllocCompletionContext();
 
 void DeallocCompletionContext(Context*);

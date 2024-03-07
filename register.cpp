@@ -15,16 +15,26 @@ void DriverRegister(
 	kPreFuncVector = new Vector<IrpMjPreFunction>();
 	kPostFuncVector = new Vector<IrpMjPostFunction>();
 	kDriverFuncVector = new Vector<void*>();
+
+	// TODO
 }
 
 void MiniFilterRegister()
 {
 	DebugMessage("MiniFilterRegister");
+
+	// TODO: register minifilter callback function here.
+}
+
+void DriverUnloadRegistered(PDRIVER_OBJECT driver_object)
+{
+	DebugMessage("DriverUnloadRegistered");
+	return;
 }
 
 Context* AllocCompletionContext()
 {
-	DebugMessage("AllocCompletionContext");
+	// DebugMessage("AllocCompletionContext");
 
 	Context* context = new Context();
 	context->status = new Vector<FLT_PREOP_CALLBACK_STATUS>(kPreFuncVector->Size());
@@ -35,7 +45,7 @@ Context* AllocCompletionContext()
 
 void DeallocCompletionContext(Context *context)
 {
-	DebugMessage("DeallocCompletionContext");
+	// DebugMessage("DeallocCompletionContext");
 
 	delete context->status;
 

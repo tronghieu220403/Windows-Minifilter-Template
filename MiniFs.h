@@ -43,6 +43,11 @@ DriverEntry(
     _In_ PUNICODE_STRING registry_path
 );
 
+NTSTATUS 
+DriverUnload(
+    PDRIVER_OBJECT driver_object
+);
+
 NTSTATUS
 MiniFsInstanceSetup(
     _In_ PCFLT_RELATED_OBJECTS flt_objects,
