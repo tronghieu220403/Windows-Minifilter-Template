@@ -179,6 +179,10 @@ Return Value:
 
     UNREFERENCED_PARAMETER( registry_path );
 
+    DriverRegister(driver_object, registry_path);
+
+    MiniFilterRegister();
+
     //
     //  Register with FltMgr to tell it our callback routines
     //
@@ -277,15 +281,38 @@ Return Value:
     UNREFERENCED_PARAMETER( flt_objects );
     UNREFERENCED_PARAMETER( completion_context );
 
-    for (int i = 0; i < kPreFuncVector.Size(); i++)
+    
+    Context* p = nullptr;
+    if (completion_context == nullptr)
     {
-        if (data->Iopb->MajorFunction == kPreFuncVector[i].irp_mj_function_code && 
-            kPreFuncVector[i].func != nullptr)
-        {
-            FLT_PREOP_CALLBACK_STATUS status = kPreFuncVector[i].func(data, flt_objects, completion_context);
+        p = AllocCompletionContext();
+        completion_context = (PVOID* )AllocCompletionContext();
+        p->status->Resize(kPreFuncVector->Size());
+    }
+    else
+    {
+        p = (Context*)completion_context;
+    }
 
-            // TODO: handle post operation.
+    if (p == nullptr)
+    {
+        return FLT_PREOP_SUCCESS_NO_CALLBACK;
+    }
+
+    for (int i = 0; i < kPreFuncVector->Size(); i++)
+    {
+        if (data->Iopb->MajorFunction == (*kPreFuncVector)[i].irp_mj_function_code && 
+            (*kPreFuncVector)[i].func != nullptr)
+        {
+            FLT_PREOP_CALLBACK_STATUS status = (*kPreFuncVector)[i].func(data, flt_objects, completion_context);
+            (*(p->status))[i] = status;
         }
+    }
+
+    if (data->Iopb->MajorFunction == IRP_MJ_SHUTDOWN)
+    {
+        DeallocCompletionContext(p);
+        return FLT_PREOP_SUCCESS_NO_CALLBACK;
     }
 
     return FLT_PREOP_SUCCESS_WITH_CALLBACK;
@@ -330,6 +357,25 @@ Return Value:
     UNREFERENCED_PARAMETER( completion_context );
     UNREFERENCED_PARAMETER( flags );
 
+    
+    Context* p = (Context*)completion_context;
+    if (p == nullptr)
+    {
+        return FLT_POSTOP_FINISHED_PROCESSING;
+    }
+
+    for (int i = 0; i < (*kPostFuncVector).Size(); i++)
+    {
+        if (data->Iopb->MajorFunction == (*kPostFuncVector)[i].irp_mj_function_code &&
+            (*kPostFuncVector)[i].func != nullptr)
+        {
+            if ((*(p->status))[i] == FLT_PREOP_SUCCESS_WITH_CALLBACK)
+            {
+                (*kPostFuncVector)[i].func(data, flt_objects, completion_context, flags);
+            }
+        }
+    }
+    
     return FLT_POSTOP_FINISHED_PROCESSING;
 }
 

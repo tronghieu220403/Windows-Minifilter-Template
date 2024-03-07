@@ -32,3 +32,5 @@
 *.app
 
 .vs/**
+/MiniFs/x64
+/x64
