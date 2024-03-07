@@ -9,3 +9,13 @@ void MiniFilterRegister()
 {
 
 }
+
+void* AllocCompletionContext()
+{
+
+}
+
+void DeallocCompletionContext(void *)
+{
+
+}

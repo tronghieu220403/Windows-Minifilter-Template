@@ -33,8 +33,8 @@
     <ClCompile Include="project_name.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lib\memory\memory.cpp">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="std\lib\memory\memory.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -49,13 +49,16 @@
     <ClInclude Include="register.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lib\memory\memory.h">
+    <ClInclude Include="std\lib\memory\memory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lib\string\string.h">
+    <ClInclude Include="std\lib\memory\sharedptr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lib\vector\vector.h">
+    <ClInclude Include="std\lib\string\string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="std\lib\vector\vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
