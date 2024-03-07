@@ -18,6 +18,11 @@ struct IrpMjPostFunction
 	PFLT_POST_OPERATION_CALLBACK func;
 };
 
+struct Context
+{
+	Vector<FLT_PREOP_CALLBACK_STATUS> status;
+};
+
 extern Vector<IrpMjPreFunction> kPreFuncVector;
 
 extern Vector<IrpMjPostFunction> kPostFuncVector;
@@ -28,3 +33,5 @@ void DriverRegister();
 
 void MiniFilterRegister();
 
+Context* AllocCompletionContext();
+void DeallocCompletionContext(Context*);

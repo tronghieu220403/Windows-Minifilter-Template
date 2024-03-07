@@ -10,12 +10,12 @@ void MiniFilterRegister()
 
 }
 
-void* AllocCompletionContext()
+Context* AllocCompletionContext()
 {
 
 }
 
-void DeallocCompletionContext(void *)
+void DeallocCompletionContext(Context *)
 {
 
 }
