@@ -95,5 +95,5 @@ DiskId1                 = "MiniFs Device Installation Disk"
 DefaultInstance         = "MiniFs Instance"
 Instance1.Name          = "MiniFs Instance"
 ; TODO - Change the altitude value, see https://msdn.microsoft.com/en-us/windows/hardware/drivers/ifs/load-order-groups-and-altitudes-for-minifilter-drivers
-Instance1.Altitude       = "_TODO_Change_Altitude_appropriately_"
+Instance1.Altitude       = "370150"
 Instance1.Flags         = 0x0              ; Allow all attachments
